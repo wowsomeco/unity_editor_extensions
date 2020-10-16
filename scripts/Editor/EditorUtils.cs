@@ -12,7 +12,18 @@ namespace Wowsome {
   public static class EditorUtils {
     public static void ApplyPrefab(this GameObject go) {
       GameObject prefab = (GameObject)PrefabUtility.InstantiatePrefab(go);
+#if UNITY_2018_1_OR_NEWER
       PrefabUtility.ApplyPrefabInstance(prefab, InteractionMode.AutomatedAction);
+#else
+      GameObject instanceRoot = UnityEditor.PrefabUtility.FindRootGameObjectWithSameParentPrefab(prefab);
+      UnityEngine.Object targetPrefab = UnityEditor.PrefabUtility.GetPrefabParent(instanceRoot);
+
+      UnityEditor.PrefabUtility.ReplacePrefab(
+        instanceRoot,
+        targetPrefab,
+        UnityEditor.ReplacePrefabOptions.ConnectToPrefab
+      );
+#endif
       AssetDatabase.SaveAssets();
       MonoBehaviour.DestroyImmediate(prefab.gameObject);
 
@@ -155,7 +166,7 @@ namespace Wowsome {
       int cur = origins.IndexOf(value);
       int selected = EditorGUILayout.Popup(lbl, cur, origins.Map(x => mapper(x)).ToArray());
       if (cur != selected) {
-        onSelected?.Invoke(new SelectState<T>(selected, origins[selected]));
+        onSelected.Invoke(new SelectState<T>(selected, origins[selected]));
         cur = selected;
       }
 
@@ -263,7 +274,7 @@ namespace Wowsome {
         if (null != cb.AddAction && GUILayout.Button(cb.AddAction.Label)) {
           T item = new T();
           cb.Origins.Add(item);
-          cb.AddAction.OnAdd?.Invoke(cb.Origins.Count);
+          cb.AddAction.OnAdd.Invoke(cb.Origins.Count);
         }
 
         EditorGUILayout.LabelField(cb.Label, EditorStyles.boldLabel);
@@ -279,7 +290,7 @@ namespace Wowsome {
             if (null != cb.Prefix) cb.Prefix(t);
 
             if (GUILayout.Button(cb.Mapper(t), style)) {
-              cb.OnSelected?.Invoke(new SelectState<T>(idx, cb.Origins[idx]));
+              cb.OnSelected.Invoke(new SelectState<T>(idx, cb.Origins[idx]));
               cur = idx;
             }
 
@@ -288,14 +299,14 @@ namespace Wowsome {
             if (null != cb.MoveAction && cb.Origins.Count > idx + 1) {
               EU.BtnWithAlert("V", () => {
                 if (cb.MoveAction.Move != null) { cb.MoveAction.Move(idx); } else { cb.Origins.Swap(idx, idx + 1); }
-                cb.MoveAction.OnMoved?.Invoke();
+                cb.MoveAction.OnMoved.Invoke();
               }, GUILayout.Width(20f));
             }
 
             if (null != cb.DelAction) {
               EU.BtnWithAlert(cb.DelAction.Label, () => {
                 if (null != cb.DelAction.OnDelete) { cb.DelAction.OnDelete(new SelectState<T>(idx, cb.Origins[idx])); } else { cb.Origins.RemoveAt(idx); }
-                cb.DelAction.OnDeleted?.Invoke(idx);
+                cb.DelAction.OnDeleted.Invoke(idx);
               }, GUILayout.Width(20f));
             }
           });
