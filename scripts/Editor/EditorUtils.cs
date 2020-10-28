@@ -274,7 +274,7 @@ namespace Wowsome {
         if (null != cb.AddAction && GUILayout.Button(cb.AddAction.Label)) {
           T item = new T();
           cb.Origins.Add(item);
-          cb.AddAction.OnAdd.Invoke(cb.Origins.Count);
+          if (null != cb.AddAction.OnAdd) cb.AddAction.OnAdd.Invoke(cb.Origins.Count);
         }
 
         EditorGUILayout.LabelField(cb.Label, EditorStyles.boldLabel);
@@ -285,7 +285,7 @@ namespace Wowsome {
           EU.HGroup(() => {
             bool isSelected = idx == cur;
             var style = new GUIStyle(GUI.skin.button);
-            style.normal.textColor = isSelected ? Color.blue : Color.black;
+            style.normal.textColor = isSelected ? Color.cyan : Color.gray;
 
             if (null != cb.Prefix) cb.Prefix(t);
 
@@ -306,7 +306,7 @@ namespace Wowsome {
             if (null != cb.DelAction) {
               EU.BtnWithAlert(cb.DelAction.Label, () => {
                 if (null != cb.DelAction.OnDelete) { cb.DelAction.OnDelete(new SelectState<T>(idx, cb.Origins[idx])); } else { cb.Origins.RemoveAt(idx); }
-                cb.DelAction.OnDeleted.Invoke(idx);
+                if (null != cb.DelAction.OnDeleted) cb.DelAction.OnDeleted.Invoke(idx);
               }, GUILayout.Width(20f));
             }
           });
