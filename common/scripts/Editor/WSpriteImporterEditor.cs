@@ -102,7 +102,7 @@ namespace Wowsome {
 
       EU.VPadding(() => {
         tgt.Data.ForEach(d => {
-          if (GUILayout.Button("PACK " + d.FolderPaths)) {
+          if (GUILayout.Button("PACK " + d.FolderPaths.Ellipsis(20))) {
             d.Folders.ForEach(f => {
               string path = d.Path + "/" + f;
               string[] filePaths = Directory.GetFiles(path);
