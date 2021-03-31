@@ -91,22 +91,7 @@ namespace Wowsome {
     }
   }
 
-  #region Toggleable
-
-  public class ToggleState {
-    public bool State { get; set; }
-    public int Idx {
-      get { return State ? 1 : 0; }
-    }
-
-    public ToggleState(bool state = false) {
-      State = state;
-    }
-
-    public void Toggle() {
-      State = !State;
-    }
-  }
+  #region Toggleable  
 
   public class Toggleable {
     public class Item {
@@ -138,28 +123,7 @@ namespace Wowsome {
 
   #endregion  
 
-  #region Selectable
-
-  public class SelectState<T> where T : class {
-    public int Idx;
-    public T Model;
-
-    public bool Selected {
-      get { return Idx > -1; }
-    }
-
-    public SelectState() : this(-1, null) { }
-
-    public SelectState(int idx, T model) {
-      Idx = idx;
-      Model = model;
-    }
-
-    public void Reset() {
-      Idx = -1;
-      Model = null;
-    }
-  }
+  #region Selectable  
 
   public class Dropdown<T> where T : class {
     public bool Build(string lbl, T value, List<T> origins, ListExt.Mapper<T, string> mapper, Action<SelectState<T>> onSelected = null) {
@@ -285,7 +249,7 @@ namespace Wowsome {
           EU.HGroup(() => {
             bool isSelected = idx == cur;
             var style = new GUIStyle(GUI.skin.button);
-            style.normal.textColor = isSelected ? Color.cyan : Color.gray;
+            style.normal.textColor = isSelected ? Color.cyan : Color.white;
 
             if (null != cb.Prefix) cb.Prefix(t);
 
