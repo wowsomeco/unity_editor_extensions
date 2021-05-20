@@ -44,6 +44,10 @@ namespace Wowsome {
       UnityEditor.AssetDatabase.Refresh();
     }
 
+    public static void Save() {
+      UnityEditor.AssetDatabase.SaveAssets();
+    }
+
     public static void Btn(string txt, Action onClick, params GUILayoutOption[] options) {
       if (GUILayout.Button(txt, options)) onClick();
     }
