@@ -73,14 +73,14 @@ namespace Wowsome {
     /// 3. For android set max size to the POT value, set format to ASTC 8x8
     /// 4. For ios set max size to POT * 2, set format to ASTC 8x8
     /// </summary>    
-    public static void SetCommonSettings(this TextureImporter importer) {
+    public static void SetCommonSettings(this TextureImporter importer, WSpriteImporter.SpritePackerData data) {
       int w, h;
       importer.GetOriginalImageSize(out w, out h);
       int prevPowerOfTwo = System.Math.Max(w, h).PrevPowerOfTwo();
       // android
-      importer.OverridePlatformSettings(PlatformAndroid(), TextureImporterFormat.ASTC_RGBA_8x8, prevPowerOfTwo);
+      importer.OverridePlatformSettings(PlatformAndroid(), data.FormatAndroid, prevPowerOfTwo);
       // ios 
-      importer.OverridePlatformSettings(PlatformIos(), TextureImporterFormat.ASTC_RGBA_8x8, prevPowerOfTwo * 2);
+      importer.OverridePlatformSettings(PlatformIos(), data.FormatIOS, prevPowerOfTwo * 2);
 
       EditorUtility.SetDirty(importer);
       importer.SaveAndReimport();
@@ -89,11 +89,11 @@ namespace Wowsome {
 
   [CustomEditor(typeof(WSpriteImporter))]
   public class WSpriteImporterEditor : Editor {
-    delegate void TexturePostProcessor(TextureImporter importer);
+    delegate void TexturePostProcessor(TextureImporter importer, WSpriteImporter.SpritePackerData data);
 
     Dictionary<TextureType, TexturePostProcessor> m_postProcessors = new Dictionary<TextureType, TexturePostProcessor>(){
-      {TextureType.Common, (importer)=> importer.SetCommonSettings()},
-      {TextureType.Background, (importer)=> importer.SetBackgroundSettings()},
+      {TextureType.Common, (importer, data) => importer.SetCommonSettings(data)},
+      {TextureType.Background, (importer, data)=> importer.SetBackgroundSettings()},
     };
 
     public override void OnInspectorGUI() {
@@ -109,7 +109,7 @@ namespace Wowsome {
               foreach (string fName in filePaths) {
                 if (fName.EndsWithMulti(new List<string> { "png", "jpg" })) {
                   TextureImporter textureImporter = (TextureImporter)AssetImporter.GetAtPath(fName);
-                  m_postProcessors[d.Type](textureImporter);
+                  m_postProcessors[d.Type](textureImporter, d);
                 }
               }
             });

@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace Wowsome {
@@ -35,6 +36,8 @@ namespace Wowsome {
       /// </summary>
       public List<string> Folders;
       public TextureType Type;
+      public TextureImporterFormat FormatAndroid;
+      public TextureImporterFormat FormatIOS;
 
       public string FolderPaths {
         get {
