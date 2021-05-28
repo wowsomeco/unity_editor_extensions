@@ -1,133 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace Wowsome {
   using EU = EditorUtils;
 
-  public static class EditorUtils {
-    public static void ApplyPrefab(this GameObject go) {
-      GameObject prefab = (GameObject)PrefabUtility.InstantiatePrefab(go);
-#if UNITY_2018_1_OR_NEWER
-      PrefabUtility.ApplyPrefabInstance(prefab, InteractionMode.AutomatedAction);
-#else
-      GameObject instanceRoot = UnityEditor.PrefabUtility.FindRootGameObjectWithSameParentPrefab(prefab);
-      UnityEngine.Object targetPrefab = UnityEditor.PrefabUtility.GetPrefabParent(instanceRoot);
-
-      UnityEditor.PrefabUtility.ReplacePrefab(
-        instanceRoot,
-        targetPrefab,
-        UnityEditor.ReplacePrefabOptions.ConnectToPrefab
-      );
-#endif
-      AssetDatabase.SaveAssets();
-      MonoBehaviour.DestroyImmediate(prefab.gameObject);
-
-      UnityEditor.AssetDatabase.Refresh();
-    }
-
-    public static void ApplyPrefab(this Component c) {
-      c.gameObject.ApplyPrefab();
-    }
-
-    public static void SetSceneDirty() {
-      Scene curScene = SceneManager.GetActiveScene();
-      EditorSceneManager.MarkSceneDirty(curScene);
-      EditorSceneManager.SaveScene(curScene);
-    }
-
-    public static void Refresh() {
-      UnityEditor.AssetDatabase.Refresh();
-    }
-
-    public static void Save() {
-      UnityEditor.AssetDatabase.SaveAssets();
-    }
-
-    public static void Btn(string txt, Action onClick, params GUILayoutOption[] options) {
-      if (GUILayout.Button(txt, options)) onClick();
-    }
-
-    public static void BtnWithAlert(string txt, Action onClick, params GUILayoutOption[] options) {
-      if (GUILayout.Button(txt, options)) Alert(onClick);
-    }
-
-    public static void Alert(Action onYes, string content = "You Sure?", string title = "") {
-      if (EditorUtility.DisplayDialog(title, content, "Yes", "No")) onYes();
-    }
-
-    public static void VSpacing(float pixels = 10f) {
-      GUILayout.Space(pixels);
-    }
-
-    public static void VPadding(Action render, float pixels = 10f) {
-      VSpacing(pixels);
-      render();
-      VSpacing(pixels);
-    }
-
-    public static void HGroup(Action render) {
-      GUILayout.BeginHorizontal();
-      render();
-      GUILayout.EndHorizontal();
-    }
-
-    public static string TextfieldWithOk(string label, string value, Action<string> onSubmit, string submitLbl = "OK") {
-      EU.HGroup(() => {
-        value = EditorGUILayout.TextField(label, value);
-        EU.Btn(submitLbl, () => onSubmit.Invoke(value));
-      });
-      return value;
-    }
-
-    public static Rect Resize(this Rect rect, Vector2 size) {
-      Rect r = new Rect(rect);
-      r.size = size;
-      return r;
-    }
-
-    public static Rect ResizeWidth(this Rect rect, float w) {
-      return rect.Resize(new Vector2(w, rect.size.y));
-    }
-  }
-
-  #region Toggleable  
-
-  public class Toggleable {
-    public class Item {
-      public string Text;
-      public Action Build;
-
-      public Item(string t, Action b) {
-        Text = t;
-        Build = b;
-      }
-    }
-
-    public void Build(ToggleState state, List<Item> items, Action<ToggleState> onToggle) {
-      EU.HGroup(() => {
-        items.Loop((it, idx) => {
-          bool selected = state.Idx == idx;
-          var style = new GUIStyle(GUI.skin.button);
-          style.normal.textColor = selected ? Color.blue : Color.black;
-          if (GUILayout.Button(it.Text, style) && !selected) {
-            onToggle(new ToggleState(!state.State));
-          }
-        });
-      });
-
-      Item item = items[state.Idx];
-      EU.VPadding(() => item.Build());
-    }
-  }
-
-  #endregion  
-
-  #region Selectable  
+  #region Dropdown  
 
   public class Dropdown<T> where T : class {
     public bool Build(string lbl, T value, List<T> origins, ListExt.Mapper<T, string> mapper, Action<SelectState<T>> onSelected = null) {
@@ -141,6 +20,10 @@ namespace Wowsome {
       return cur >= 0;
     }
   }
+
+  #endregion
+
+  #region Menu
 
   public class Menu<T> where T : class, new() {
     public class AddAction {
@@ -301,36 +184,36 @@ namespace Wowsome {
 
   #endregion
 
-  public class FileBrowser {
-    string m_lastPath = string.Empty;
+  #region AutoComplete
 
-    public FileBrowser(string defaultPath = "") {
-      m_lastPath = defaultPath;
-    }
+  public class AutoCompleteField {
+    string m_value = string.Empty;
+    Vector2 m_scrollPos;
 
-    public void Build(string btnTxt, string acceptedFile, Action<string> onSelected) {
-      if (GUILayout.Button(btnTxt)) {
-        string path = EditorUtility.OpenFilePanel(btnTxt, string.IsNullOrEmpty(m_lastPath) ? "~/" : m_lastPath, acceptedFile);
-        if (!string.IsNullOrEmpty(path)) {
-          m_lastPath = path;
-          onSelected(path);
-        }
-      }
-    }
-  }
+    public void Build(string lbl, string value, List<string> selection, Action<string> onSelected) {
+      EditorGUILayout.LabelField($"{lbl} : {value}", EditorStyles.boldLabel);
 
-  public class FolderBrowser {
-    string m_lastPath = string.Empty;
+      GUI.SetNextControlName(lbl);
+      m_value = EditorGUILayout.TextField("Search", m_value);
 
-    public void Build(string btnTxt, Action<string[]> onSelected) {
-      if (GUILayout.Button(btnTxt)) {
-        string path = EditorUtility.OpenFolderPanel(btnTxt, string.IsNullOrEmpty(m_lastPath) ? "~/" : m_lastPath, "");
-        if (!string.IsNullOrEmpty(path)) {
-          m_lastPath = path;
-          string[] files = Directory.GetFiles(path);
-          onSelected(files);
-        }
-      }
+      if (m_value.IsEmpty() || GUI.GetNameOfFocusedControl() != lbl) return;
+
+      List<string> foundItems = selection.FindAll(x => x.Contains(m_value));
+      if (foundItems == null) return;
+
+      GUILayout.BeginVertical("box");
+      m_scrollPos = EditorGUILayout.BeginScrollView(m_scrollPos, GUILayout.Width(EditorGUIUtility.currentViewWidth - 50), GUILayout.Height(300));
+      foundItems.ForEach(item => {
+        EU.Btn(item, () => {
+          m_value = item;
+          onSelected(item);
+          GUI.FocusControl(null);
+        });
+      });
+      EditorGUILayout.EndScrollView();
+      GUILayout.EndVertical();
     }
   }
+
+  #endregion
 }

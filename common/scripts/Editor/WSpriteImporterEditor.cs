@@ -104,7 +104,7 @@ namespace Wowsome {
         tgt.Data.ForEach(d => {
           if (GUILayout.Button("PACK " + d.FolderPaths.Ellipsis(20))) {
             d.Folders.ForEach(f => {
-              string path = d.Path + "/" + f;
+              string path = Path.Combine(d.Path, f);
               string[] filePaths = Directory.GetFiles(path);
               foreach (string fName in filePaths) {
                 if (fName.EndsWithMulti(new List<string> { "png", "jpg" })) {
