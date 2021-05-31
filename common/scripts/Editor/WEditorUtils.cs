@@ -69,6 +69,10 @@ namespace Wowsome {
       if (EditorUtility.DisplayDialog(title, content, "Yes", "No")) onYes();
     }
 
+    public static void Warning(string content, string title = "") {
+      EditorUtility.DisplayDialog(title, content, "OK");
+    }
+
     public static void VSpacing(float pixels = 10f) {
       GUILayout.Space(pixels);
     }
