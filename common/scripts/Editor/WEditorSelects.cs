@@ -83,6 +83,11 @@ namespace Wowsome {
         DelAction = delAction;
       }
 
+      public BuildCallback(string lbl, T v, List<T> or, ListExt.Mapper<T, string> mapper, Action<SelectState<T>> os, DeleteAction delAction)
+      : this(lbl, or, mapper, os, delAction) {
+        Value = v;
+      }
+
       public BuildCallback(string lbl, T v, List<T> or, ListExt.Mapper<T, string> mapper, Action<SelectState<T>> os)
       : this(lbl, or, mapper, os) {
         Value = v;

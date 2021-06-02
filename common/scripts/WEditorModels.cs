@@ -21,8 +21,8 @@
   #region Selectable
 
   public class SelectState<T> where T : class {
-    public int Idx;
-    public T Model;
+    public int Idx { get; set; }
+    public T Model { get; set; }
 
     public bool Selected {
       get { return Idx > -1; }
