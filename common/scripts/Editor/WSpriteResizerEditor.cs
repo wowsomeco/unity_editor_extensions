@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using UnityEditor;
@@ -6,7 +6,8 @@ using UnityEngine;
 
 namespace Wowsome {
   using EU = EditorUtils;
-  using TextureType = WSpriteImporter.TextureType;
+  using SpritePackerData = WSpriteResizer.SpritePackerData;
+  using TextureType = WSpriteResizer.TextureType;
 
   public static class TextureImporterExt {
     public static string PlatformAndroid() {
@@ -73,23 +74,23 @@ namespace Wowsome {
     /// 3. For android set max size to the POT value, set format to ASTC 8x8
     /// 4. For ios set max size to POT * 2, set format to ASTC 8x8
     /// </summary>    
-    public static void SetCommonSettings(this TextureImporter importer, WSpriteImporter.SpritePackerData data) {
+    public static void SetCommonSettings(this TextureImporter importer, SpritePackerData data) {
       int w, h;
       importer.GetOriginalImageSize(out w, out h);
       int prevPowerOfTwo = System.Math.Max(w, h).PrevPowerOfTwo();
       // android
-      importer.OverridePlatformSettings(PlatformAndroid(), data.FormatAndroid, prevPowerOfTwo);
+      importer.OverridePlatformSettings(PlatformAndroid(), data.formatAndroid, prevPowerOfTwo);
       // ios 
-      importer.OverridePlatformSettings(PlatformIos(), data.FormatIOS, prevPowerOfTwo * 2);
+      importer.OverridePlatformSettings(PlatformIos(), data.formatIOS, prevPowerOfTwo * 2);
 
       EditorUtility.SetDirty(importer);
       importer.SaveAndReimport();
     }
   }
 
-  [CustomEditor(typeof(WSpriteImporter))]
-  public class WSpriteImporterEditor : Editor {
-    delegate void TexturePostProcessor(TextureImporter importer, WSpriteImporter.SpritePackerData data);
+  [CustomEditor(typeof(WSpriteResizer))]
+  public class WSpriteResizerEditor : Editor {
+    delegate void TexturePostProcessor(TextureImporter importer, SpritePackerData data);
 
     Dictionary<TextureType, TexturePostProcessor> m_postProcessors = new Dictionary<TextureType, TexturePostProcessor>(){
       {TextureType.Common, (importer, data) => importer.SetCommonSettings(data)},
@@ -98,26 +99,39 @@ namespace Wowsome {
 
     public override void OnInspectorGUI() {
       DrawDefaultInspector();
-      WSpriteImporter tgt = (WSpriteImporter)target;
+      WSpriteResizer tgt = (WSpriteResizer)target;
 
       EU.VPadding(() => {
-        tgt.Data.ForEach(d => {
-          if (GUILayout.Button("PACK " + d.FolderPaths.Ellipsis(20))) {
-            d.Folders.ForEach(f => {
-              string path = Path.Combine(d.Path, f);
-              string[] filePaths = Directory.GetFiles(path);
-              foreach (string fName in filePaths) {
-                if (fName.EndsWithMulti(new List<string> { "png", "jpg" })) {
-                  TextureImporter textureImporter = (TextureImporter)AssetImporter.GetAtPath(fName);
-                  m_postProcessors[d.Type](textureImporter, d);
-                }
-              }
-            });
+        tgt.data.ForEach(d => {
+          if (GUILayout.Button("RESIZE " + d.FolderPaths.Ellipsis(20))) {
+            Pack(d);
           }
 
           EditorUtils.VSpacing();
         });
       });
+
+      EU.VPadding(() => {
+        EU.BtnWithAlert("RESIZE ALL", () => {
+          tgt.data.ForEach(d => Pack(d));
+        });
+      });
+    }
+
+    void Pack(SpritePackerData spritePacker) {
+      spritePacker.folders.ForEach(f => {
+        string path = Path.Combine(spritePacker.path, f);
+        // recursively find the files in this folder path     
+        string[] filePaths = Directory.GetFiles(path, "*", SearchOption.AllDirectories);
+        foreach (string fName in filePaths) {
+          if (fName.EndsWithMulti(new List<string> { "png", "jpg" })) {
+            TextureImporter textureImporter = (TextureImporter)AssetImporter.GetAtPath(fName);
+            m_postProcessors[spritePacker.type](textureImporter, spritePacker);
+          }
+        }
+      });
+
+      EU.Refresh();
     }
   }
 }
