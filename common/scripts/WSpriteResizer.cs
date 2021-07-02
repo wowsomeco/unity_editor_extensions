@@ -42,7 +42,7 @@ namespace Wowsome {
 
       public string FolderPaths {
         get {
-          return folders.Fold(string.Empty, (prev, cur) => string.Format("{0}/{1}", prev, cur));
+          return folders.Fold(path, (prev, cur) => string.Format("{0}/{1}", prev, cur));
         }
       }
     }

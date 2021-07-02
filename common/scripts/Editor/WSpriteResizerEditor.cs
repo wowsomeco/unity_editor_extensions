@@ -103,7 +103,7 @@ namespace Wowsome {
 
       EU.VPadding(() => {
         tgt.data.ForEach(d => {
-          if (GUILayout.Button("RESIZE " + d.FolderPaths.Ellipsis(20))) {
+          if (GUILayout.Button("RESIZE " + d.FolderPaths.Ellipsis(50))) {
             Pack(d);
           }
 
@@ -130,8 +130,6 @@ namespace Wowsome {
           }
         }
       });
-
-      EU.Refresh();
     }
   }
 }
