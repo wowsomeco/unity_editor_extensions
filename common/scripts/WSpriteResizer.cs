@@ -39,6 +39,7 @@ namespace Wowsome {
       public TextureType type;
       public TextureImporterFormat formatAndroid;
       public TextureImporterFormat formatIOS;
+      public int minSize = 128;
 
       public string FolderPaths {
         get {
