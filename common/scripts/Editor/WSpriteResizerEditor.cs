@@ -126,7 +126,7 @@ namespace Wowsome {
         // recursively find the files in this folder path     
         string[] filePaths = Directory.GetFiles(path, "*", SearchOption.AllDirectories);
         foreach (string fName in filePaths) {
-          if (fName.EndsWithMulti(new List<string> { "png", "jpg" })) {
+          if (fName.EndsWithMulti("png", "jpg")) {
             TextureImporter textureImporter = (TextureImporter)AssetImporter.GetAtPath(fName);
             m_postProcessors[spritePacker.type](textureImporter, spritePacker);
           }
