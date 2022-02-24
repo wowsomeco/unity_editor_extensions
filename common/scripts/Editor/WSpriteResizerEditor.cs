@@ -79,7 +79,7 @@ namespace Wowsome {
       int w, h;
       importer.GetOriginalImageSize(out w, out h);
       int prevPowerOfTwo = System.Math.Max(w, h).PrevPowerOfTwo();
-      prevPowerOfTwo = Math.Max(prevPowerOfTwo, data.minSize);
+      prevPowerOfTwo = prevPowerOfTwo.Clamp(data.minSize, data.maxSize);
       // android
       importer.OverridePlatformSettings(PlatformAndroid(), data.formatAndroid, prevPowerOfTwo);
       // ios 
