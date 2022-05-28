@@ -78,12 +78,13 @@ namespace Wowsome {
     public static void SetCommonSettings(this TextureImporter importer, SpritePackerData data) {
       int w, h;
       importer.GetOriginalImageSize(out w, out h);
-      int prevPowerOfTwo = System.Math.Max(w, h).PrevPowerOfTwo();
-      prevPowerOfTwo = prevPowerOfTwo.Clamp(data.minSize, data.maxSize);
+      int prevPowerOfTwo = Math.Max(w, h).PrevPowerOfTwo();
+      int maxSizeAndroid = prevPowerOfTwo.Clamp(data.minSize, data.maxSize);
+      int maxSizeIos = (prevPowerOfTwo * 2).Clamp(data.minSize, data.maxSize);
       // android
-      importer.OverridePlatformSettings(PlatformAndroid(), data.formatAndroid, prevPowerOfTwo);
+      importer.OverridePlatformSettings(PlatformAndroid(), data.formatAndroid, maxSizeAndroid);
       // ios 
-      importer.OverridePlatformSettings(PlatformIos(), data.formatIOS, prevPowerOfTwo * 2);
+      importer.OverridePlatformSettings(PlatformIos(), data.formatIOS, maxSizeIos);
 
       EditorUtility.SetDirty(importer);
       importer.SaveAndReimport();
