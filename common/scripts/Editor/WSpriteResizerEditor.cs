@@ -21,12 +21,7 @@ namespace Wowsome {
     }
 
     public static string PlatformIos() {
-      // well done unity! keep changing everything!
-#if UNITY_2018_1_OR_NEWER
-      return "ios";
-#else
       return "iPhone";
-#endif
     }
 
     public static bool GetOriginalImageSize(this TextureImporter importer, out int width, out int height) {
