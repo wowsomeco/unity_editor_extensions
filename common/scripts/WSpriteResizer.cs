@@ -38,6 +38,7 @@ namespace Wowsome {
       public List<string> folders;
       public TextureType type;
       public TextureImporterFormat formatAndroid;
+      public TextureImporterFormat formatWebGL;
       public TextureImporterFormat formatIOS;
       public int minSize = 128;
       public int maxSize = 2048;

@@ -20,9 +20,9 @@ namespace Wowsome {
 #endif
     }
 
-    public static string PlatformIos() {
-      return "iPhone";
-    }
+    public static string PlatformWebGL() => "WebGL";
+
+    public static string PlatformIos() => "iPhone";
 
     public static bool GetOriginalImageSize(this TextureImporter importer, out int width, out int height) {
       if (importer != null) {
@@ -56,6 +56,8 @@ namespace Wowsome {
     public static void SetBackgroundSettings(this TextureImporter importer) {
       // android
       importer.OverridePlatformSettings(PlatformAndroid(), TextureImporterFormat.RGB16, 1024);
+      // webgl
+      importer.OverridePlatformSettings(PlatformWebGL(), TextureImporterFormat.RGB16, 1024);
       // ios
       importer.OverridePlatformSettings(PlatformIos(), TextureImporterFormat.RGB16, 2048);
       // apply changes
@@ -78,6 +80,8 @@ namespace Wowsome {
       int maxSizeIos = (prevPowerOfTwo * 2).Clamp(data.minSize, data.maxSize);
       // android
       importer.OverridePlatformSettings(PlatformAndroid(), data.formatAndroid, maxSizeAndroid);
+      // webgl
+      importer.OverridePlatformSettings(PlatformWebGL(), data.formatWebGL, maxSizeAndroid);
       // ios 
       importer.OverridePlatformSettings(PlatformIos(), data.formatIOS, maxSizeIos);
 
