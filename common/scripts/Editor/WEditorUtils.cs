@@ -61,6 +61,12 @@ namespace Wowsome {
       if (GUILayout.Button(txt, options)) onClick();
     }
 
+    public static void BtnPaddingV(string txt, Action onClick, params GUILayoutOption[] options) {
+      VPadding(() => {
+        if (GUILayout.Button(txt, options)) onClick();
+      });
+    }
+
     public static void BtnWithAlert(string txt, Action onClick, params GUILayoutOption[] options) {
       if (GUILayout.Button(txt, options)) Alert(onClick);
     }
@@ -89,6 +95,12 @@ namespace Wowsome {
       GUILayout.EndHorizontal();
     }
 
+    public static void VGroup(Action render) {
+      GUILayout.BeginVertical();
+      render();
+      GUILayout.EndVertical();
+    }
+
     public static string TextfieldWithOk(string label, string value, Action<string> onSubmit, string submitLbl = "OK") {
       EU.HGroup(() => {
         value = EditorGUILayout.TextField(label, value);
@@ -105,6 +117,14 @@ namespace Wowsome {
 
     public static Rect ResizeWidth(this Rect rect, float w) {
       return rect.Resize(new Vector2(w, rect.size.y));
+    }
+
+    public static void Label(string txt, Color color, int size) {
+      GUIStyle style = new GUIStyle();
+      style.normal.textColor = color;
+      style.fontSize = size;
+
+      EditorGUILayout.LabelField(txt, style);
     }
   }
 
