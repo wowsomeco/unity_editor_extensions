@@ -119,12 +119,12 @@ namespace Wowsome {
       return rect.Resize(new Vector2(w, rect.size.y));
     }
 
-    public static void Label(string txt, Color color, int size) {
+    public static void Label(string txt, Color color, int size, params GUILayoutOption[] options) {
       GUIStyle style = new GUIStyle();
       style.normal.textColor = color;
       style.fontSize = size;
 
-      EditorGUILayout.LabelField(txt, style);
+      EditorGUILayout.LabelField(txt, style, options);
     }
   }
 
