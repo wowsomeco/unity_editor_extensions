@@ -9,9 +9,9 @@ namespace Wowsome {
   #region Dropdown  
 
   public class Dropdown<T> where T : class {
-    public bool Build(string lbl, T value, List<T> origins, ListExt.Mapper<T, string> mapper, Action<SelectState<T>> onSelected = null) {
+    public bool Build(string lbl, T value, List<T> origins, ListExt.Mapper<T, string> mapper, Action<SelectState<T>> onSelected = null, params GUILayoutOption[] options) {
       int cur = origins.IndexOf(value);
-      int selected = EditorGUILayout.Popup(lbl, cur, origins.Map(x => mapper(x)).ToArray());
+      int selected = EditorGUILayout.Popup(lbl, cur, origins.Map(x => mapper(x)).ToArray(), options);
       if (cur != selected) {
         onSelected.Invoke(new SelectState<T>(selected, origins[selected]));
         cur = selected;
